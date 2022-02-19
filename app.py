@@ -1,4 +1,4 @@
-from flask import Flask, request, flash, redirect, send_file, url_for
+from flask import Flask, request, flash, redirect, send_file, url_for, abort
 from markupsafe import escape
 from hashlib import sha1
 from werkzeug.utils import secure_filename
@@ -58,6 +58,10 @@ def redirect_downloads(id):
 @app.route("/media/<id>/<fname>")
 def download(id, fname):
     filename = os.path.join(UPLOAD_FOLDER, secure_filename(id))
+
+    if not os.path.exists(filename):
+        abort(404)
+
     with open(filename, "rb") as file:
         if not file:
             abort(404)
