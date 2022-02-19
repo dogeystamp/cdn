@@ -1,0 +1,5 @@
+# Location to store files
+UPLOAD_FOLDER: "/var/cdn"
+
+# Session key for Flask
+secret_key: ""

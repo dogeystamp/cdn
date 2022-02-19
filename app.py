@@ -2,16 +2,34 @@ from flask import Flask, request, flash, redirect, send_file, url_for
 from markupsafe import escape
 from hashlib import sha1
 from werkzeug.utils import secure_filename
+import yaml
 import json
 import os
 import io
 
-UPLOAD_FOLDER = "/var/cdn"
+config_paths = ["/etc/chatcdn/", "./"]
+config_path = ""
 
+for path in config_paths:
+    if os.path.exists(path + "config.yml"):
+        config_path = path
+        break
+
+
+if config_path == "" or not os.path.exists(config_path + "config.yml"):
+    raise FileNotFoundError("No configuration file was found. Please create one by copying config.yml.example.")
+
+config = yaml.safe_load(open(config_path + "config.yml"))
 
 app = Flask(__name__)
+
+UPLOAD_FOLDER = config["UPLOAD_FOLDER"]
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.secret_key = b"hmmm"
+
+if config["secret_key"] == "":
+    raise ValueError("Please set secret_key within config.yml.")
+
+app.secret_key = config["secret_key"]
 
 def file_hash(filename):
     h = sha1()
